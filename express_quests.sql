@@ -55,6 +55,8 @@ VALUES
     150
   );
 
+USE express_quests;
+
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
