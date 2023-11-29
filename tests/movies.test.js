@@ -28,3 +28,58 @@ describe("GET /api/movies/:id", () => {
   });
 });
 
+describe("POST /api/movies", () => {
+  it("should return created movie", async () => {
+    const newMovie = {
+      title: "Star Wars",
+      director: "George Lucas",
+      year: "1977",
+      color: "1",
+      duration: 120,
+    };
+
+    const response = await request(app).post("/api/movies").send(newMovie);
+
+    expect(response.headers["content-type"]).toMatch(/json/);
+    expect(response.status).toEqual(201);
+    expect(response.body).toHaveProperty("id");
+    expect(typeof response.body.id).toBe("number");
+
+    const [result] = await database.query(
+      "SELECT * FROM movies WHERE id=?",
+      response.body.id
+    );
+
+    const [movieInDatabase] = result;
+
+    expect(movieInDatabase).toHaveProperty("id");
+
+    expect(movieInDatabase).toHaveProperty("title");
+    expect(typeof movieInDatabase.title).toBe("string");
+
+    expect(movieInDatabase).toHaveProperty("director");
+    expect(typeof movieInDatabase.director).toBe("string");
+
+    expect(movieInDatabase).toHaveProperty("year");
+    expect(typeof movieInDatabase.year).toBe("string");
+    expect(movieInDatabase).toHaveProperty("color");
+    expect(typeof movieInDatabase.color).toBe("string");
+
+    expect(movieInDatabase).toHaveProperty("duration");
+    expect(typeof movieInDatabase.duration).toBe("number");
+  });
+
+  it("should return an error", async () => {
+    const movieWithMissingProps = { title: "Harry Potter" };
+
+    const response = await request(app)
+      .post("/api/movies")
+      .send(movieWithMissingProps);
+
+    expect(response.status).toEqual(400);
+  });
+});
+
+const database = require("../database");
+
+afterAll(() => database.end());
