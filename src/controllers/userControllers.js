@@ -7,8 +7,7 @@ const getUsers = (req, res) => {
       res.json(users); // use res.json instead of console.log
     })
     .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
+      res.status(500).send({ message: err.message });
     });
 };
 
@@ -25,8 +24,7 @@ const getUserById = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
+      res.status(500).send({ message: err.message });
     });
 };
 
@@ -44,7 +42,6 @@ const postUser = (req, res) => {
       res.status(201).send({ id: result.insertId });
     })
     .catch((err) => {
-      console.error(err);
       res.status(400).send({ message: err.message });
     });
 };
@@ -59,7 +56,7 @@ const updateUser = (req, res) => {
   database
     .query(
       "update users set firstname = ?, lastname = ?, email = ?, city = ?, language = ? where id = ?",
-      [firstname, lastname, email, city, language]
+      [firstname, lastname, email, city, language, id]
     )
     .then(([result]) => {
       if (result.affectedRows === 0) {
@@ -69,7 +66,6 @@ const updateUser = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
       res.status(400).send({ message: err.message });
     });
 };
