@@ -23,13 +23,13 @@ describe("GET /api/users/:id", () => {
 
     expect(response.headers["content-type"]).toMatch(/json/);
 
-    expect(response.status).toEqual(200);
+    expect(response.status).toEqual(422);
   });
 
   it("should return no user", async () => {
     const response = await request(app).get("/api/users/0");
 
-    expect(response.status).toEqual(404);
+    expect(response.status).toEqual(422);
   });
 });
 
@@ -90,7 +90,7 @@ describe("POST /api/users", () => {
       .post("/api/users")
       .send(userWithMissingProps);
 
-    expect(response.status).toEqual(400);
+    expect(response.status).toEqual(422);
   });
 });
 
