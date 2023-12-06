@@ -20,7 +20,7 @@ app.delete("/api/movies/:id", movieControllers.deleteMovie);
 const userControllers = require("./controllers/userControllers");
 const validateUser = require("./middlewares/validateuser");
 
-app.get("/api/users", userControllers.getUsers);
+app.get("/api/users", (req, res) => userControllers.getUsers(req, res));
 app.get("/api/users/:id", validateUser, userControllers.getUserById);
 app.post("/api/users", validateUser, userControllers.postUser);
 app.put("/api/users/:id", userControllers.updateUser);

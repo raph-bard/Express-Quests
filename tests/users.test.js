@@ -191,28 +191,42 @@ describe("PUT /api/users/:id", () => {
 });
 
 
+// DELETE
 
-// validations
+describe('DELETE /api/users/:id', () => {
+  it('should respond with status 204 on successful deletion', async () => {
+    // creating a user to delete
+    const userToBeDeleted = {
+      firstname: "TestUser",
+      lastname: "TestName",
+      email: `${crypto.randomUUID()}@wild.co`,
+      city: "TestCity",
+      language: "TestLanguage",
+    };
 
-const validateUser = (req, res, next) => {
-  const { email } = req.body;
-  const errors = [];
+    // post the user
+    const postResponse = await request(app).post('/api/users').send(userToBeDeleted);
+    expect(postResponse.status).toBe(201);
 
-  // ...
+    // put the id of the user to delete
+    const userIdToDelete = postResponse.body.id;
 
-  const emailRegex = /[a-z0-9._]+@[a-z0-9-]+\.[a-z]{2,3}/;
+    // delete the user just created
+    const deleteResponse = await request(app).delete(`/api/users/${userIdToDelete}`);
+    expect(deleteResponse.status).toBe(204);
+  });
 
-  if (!emailRegex.test(email)) {
-    errors.push({ field: 'email', message: 'Invalid email' });
-  }
+  it("should respond with status 404 if the movie doesn't exist", async () => {
+    // try to delete the user 0 - we know it doesnt exist
 
-  // ...
+    const response = await request(app).delete(`/api/users/0`);
+    expect(response.status).toBe(404);
+  });
 
-  if (errors.length) {
-    res.status(422).json({ validationErrors: errors });
-  } else {
-    next();
-  }
-};
+  it('should respond with status 500 on server error', async () => {
+    const response = await request(app).delete('/api/users/:id');
+    expect(response.status).toBe(500);
+  });
+});
 
-afterAll(() => database.end());
+

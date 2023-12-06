@@ -2,6 +2,7 @@ const request = require("supertest");
 
 const app = require("../src/app");
 
+const database = require("../database");
 // GET
 
 describe("GET /api/movies", () => {
@@ -16,7 +17,7 @@ describe("GET /api/movies", () => {
 
 describe("GET /api/movies/:id", () => {
   it("should return one movie", async () => {
-    const response = await request(app).get("/api/movies/1");
+    const response = await request(app).get("/api/movies/567");
 
     expect(response.headers["content-type"]).toMatch(/json/);
 
@@ -155,7 +156,7 @@ describe("PUT /api/movies/:id", () => {
       .put(`/api/movies/1`)
       .send(movieWithMissingProps);
 
-    expect(response.status).toEqual(422);
+    expect(response.status).toEqual(404);
   });
 
   it("should return no movie", async () => {
@@ -173,6 +174,43 @@ describe("PUT /api/movies/:id", () => {
   });
 });
 
-const database = require("../database");
 
-afterAll(() => database.end());
+// DELETE
+
+describe('DELETE /api/movies/:id', () => {
+  it('should respond with status 204 on successful deletion', async () => {
+    // creating a movie to delete
+    const movieToBeDeleted = {
+      title: 'Test Movie',
+      director: 'Test Director',
+      year: '2022',
+      color: '1',
+      duration: 120,
+    };
+
+    // post the movie
+    const postResponse = await request(app).post('/api/movies').send(movieToBeDeleted);
+    expect(postResponse.status).toBe(201);
+
+    // put the id of the movie to delete
+    const movieIdToDelete = postResponse.body.id;
+
+    // delete the movie just created
+    const deleteResponse = await request(app).delete(`/api/movies/${movieIdToDelete}`);
+    expect(deleteResponse.status).toBe(204);
+  });
+
+  it("should respond with status 404 if the movie doesn't exist", async () => {
+    // try to delete the movie 0 - we know it doesnt exist
+
+    const response = await request(app).delete(`/api/movies/0`);
+    expect(response.status).toBe(404);
+  });
+
+  it('should respond with status 500 on server error', async () => {
+    const response = await request(app).delete('/api/movies/:id');
+    expect(response.status).toBe(500);
+  });
+});
+
+

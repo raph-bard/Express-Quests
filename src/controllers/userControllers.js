@@ -1,14 +1,14 @@
 const database = require("../../database");
 
-const getUsers = (req, res) => {
-  database
-    .query("select * from users")
-    .then(([users]) => {
-      res.json(users); // use res.json instead of console.log
-    })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
+// GET
+
+const getUsers = async (req, res) => {
+  try {
+    const users = await database.query("select * from users");
+    res.json(users); // use res.json instead of console.log
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };
 
 const getUserById = (req, res) => {
@@ -46,8 +46,7 @@ const postUser = (req, res) => {
     });
 };
 
-
-// Put 
+// Put
 
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
@@ -69,7 +68,6 @@ const updateUser = (req, res) => {
       res.status(400).send({ message: err.message });
     });
 };
-
 
 // DELETE
 
